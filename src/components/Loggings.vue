@@ -23,10 +23,15 @@
         :options.sync="options"
         :items="loggings"
         :loading="loading"
+        v-model="selectedItems"
         :server-items-length="totalLoggings"
         @click:row="openLogging"
         class="elevation-1"
+          show-select
       >
+      <template v-slot:top>
+        <v-btn color="error" class="ml-4" @click="Supprimer"><v-icon left>mdi-delete</v-icon> Supprimer</v-btn>
+    </template>
         <template v-slot:item.type="{ item }">
           <v-icon color="red" v-if="item.type === 0">mdi-alert</v-icon>
           <v-icon color="orange" v-if="item.type === 1">mdi-alert-circle</v-icon>
@@ -89,6 +94,7 @@ export default class Loggings extends Vue {
   private loading: boolean = false;
   private search: string = "";
   private loggings: Logging[] = [];
+  private selectedItems: Logging[] = [];
   private options: any = {};
   private totalLoggings: Number = 0;
   private headers = [
@@ -152,6 +158,29 @@ export default class Loggings extends Vue {
     if (typeErreur === 0) return "red";
     else if (typeErreur === 1) return "orange";
     else return "blue";
+  }
+  private Supprimer(){
+      const idsToDelete: Number[] = this.selectedItems.map(({ id }) => id);
+      axios
+      .delete(
+        process.env.VUE_APP_ApiLogging +
+          "Logging",{data :  idsToDelete}
+      )
+      .then(response => {
+        this.selectedItems.forEach(element => {
+           const index = this.loggings.indexOf(element, 0);
+            if (index > -1) {
+              this.loggings.splice(index, 1);
+            }
+        });
+      })
+      .catch(e => {
+        this.errorMessage = e.message;
+      })
+      .finally(() => {
+        this.loading = false;
+      });
+       
   }
 }
 </script>
