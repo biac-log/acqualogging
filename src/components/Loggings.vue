@@ -30,10 +30,11 @@
           show-select
       >
       <template v-slot:top>
-        <v-btn color="error" class="ml-4" @click="Supprimer"><v-icon left>mdi-delete</v-icon> Supprimer</v-btn>
-    </template>
+        <v-btn color="error" v-if="selectedItems.length > 0" class="ml-4" @click="Supprimer" ><v-icon left>mdi-delete</v-icon> Supprimer</v-btn>
+      </template>
         <template v-slot:item.type="{ item }">
-          <v-icon color="red" v-if="item.type === 0">mdi-alert</v-icon>
+          <v-icon color="orange" v-if="item.type === 0">mdi-alert</v-icon>
+          <v-icon color="red" v-if="item.type === 3">mdi-alert</v-icon>
           <v-icon color="orange" v-if="item.type === 1">mdi-alert-circle</v-icon>
           <v-icon color="blue" v-if="item.type === 2">mdi-comment-alert</v-icon>
         </template>
