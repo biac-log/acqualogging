@@ -1,10 +1,18 @@
 <template>
   <div>
-    <v-alert :value="errorMessage != ''" type="warning" border="left">{{ errorMessage }}</v-alert>
+    <v-alert :value="errorMessage != ''" type="warning" border="left">{{
+      errorMessage
+    }}</v-alert>
     <v-card>
       <v-card-title>
         Loggings
         <v-spacer></v-spacer>
+        <v-checkbox
+          class="mr-4"
+          v-model="seeLogInfo"
+          label="Afficher les logs informatifs"
+        >
+        </v-checkbox>
         <v-text-field
           v-model="search"
           @keypress.enter="getDataFromApi"
@@ -16,8 +24,8 @@
       </v-card-title>
       <v-data-table
         :footer-props="{
-				'items-per-page-options': [10, 25, 50, -1]
-			  }"
+          'items-per-page-options': [10, 25, 50, -1],
+        }"
         :items-per-page="25"
         :headers="headers"
         :options.sync="options"
@@ -27,18 +35,28 @@
         :server-items-length="totalLoggings"
         @click:row="openLogging"
         class="elevation-1"
-          show-select
+        show-select
       >
-      <template v-slot:top>
-        <v-btn color="error" v-if="selectedItems.length > 0" class="ml-4" @click="Supprimer" ><v-icon left>mdi-delete</v-icon> Supprimer</v-btn>
-      </template>
+        <template v-slot:top>
+          <v-btn
+            color="error"
+            v-if="selectedItems.length > 0"
+            class="ml-4"
+            @click="Supprimer"
+            ><v-icon left>mdi-delete</v-icon> Supprimer</v-btn
+          >
+        </template>
         <template v-slot:item.type="{ item }">
           <v-icon color="orange" v-if="item.type === 0">mdi-alert</v-icon>
           <v-icon color="red" v-if="item.type === 3">mdi-alert</v-icon>
-          <v-icon color="orange" v-if="item.type === 1">mdi-alert-circle</v-icon>
+          <v-icon color="orange" v-if="item.type === 1"
+            >mdi-alert-circle</v-icon
+          >
           <v-icon color="blue" v-if="item.type === 2">mdi-comment-alert</v-icon>
         </template>
-        <template v-slot:item.date="{ item }">{{ item.date.toLocaleString() }}</template>
+        <template v-slot:item.date="{ item }">{{
+          item.date.toLocaleString()
+        }}</template>
       </v-data-table>
       <v-dialog v-model="dialog" scrollable max-width="1300px">
         <v-card>
@@ -48,7 +66,8 @@
               <v-row>
                 <v-col cols="12" sm="6" md="4">
                   <h2>Application</h2>
-                  {{ selectedLog.application }} {{ selectedLog.applicationVersion}}
+                  {{ selectedLog.application }}
+                  {{ selectedLog.applicationVersion }}
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <h2>Date</h2>
@@ -56,7 +75,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <h2>Utilisateur</h2>
-                  {{ selectedLog.user}}
+                  {{ selectedLog.user }}
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
                   <h2>Fonction</h2>
@@ -94,6 +113,7 @@ import { JsonConvert, ValueCheckingMode } from "json2typescript";
 export default class Loggings extends Vue {
   private loading: boolean = false;
   private search: string = "";
+  private seeLogInfo: boolean = false;
   private loggings: Logging[] = [];
   private selectedItems: Logging[] = [];
   private options: any = {};
@@ -104,7 +124,7 @@ export default class Loggings extends Vue {
     { text: "User", value: "user", width: 150 },
     { text: "Application", value: "application", width: 150 },
     { text: "Fonction", value: "fonction" },
-    { text: "ExceptionType", value: "exceptionType" }
+    { text: "ExceptionType", value: "exceptionType" },
   ];
   private errorMessage: string = "";
   private dialog: boolean = false;
@@ -116,18 +136,20 @@ export default class Loggings extends Vue {
   private getDataFromApi() {
     this.loading = true;
     const { sortBy, sortDesc, page, itemsPerPage } = this.options;
-
+    let baseQuery = this.seeLogInfo
+      ? "Logging?Term="
+      : "Logging/GetErrors?Term";
     axios
       .get<PagedCollection<Logging>>(
         process.env.VUE_APP_ApiLogging +
-          "Logging?Term=" +
+          baseQuery +
           this.search +
           "&Page=" +
           page +
           "&Limit=" +
           itemsPerPage
       )
-      .then(response => {
+      .then((response) => {
         const jsonConvert: JsonConvert = new JsonConvert();
         jsonConvert.valueCheckingMode = ValueCheckingMode.ALLOW_NULL;
         this.loggings = jsonConvert.deserializeArray(
@@ -137,7 +159,7 @@ export default class Loggings extends Vue {
         this.totalLoggings = response.data.totalCount;
         this.errorMessage = "";
       })
-      .catch(e => {
+      .catch((e) => {
         this.errorMessage = e.message;
       })
       .finally(() => {
@@ -160,32 +182,26 @@ export default class Loggings extends Vue {
     else if (typeErreur === 1) return "orange";
     else return "blue";
   }
-  private Supprimer(){
-      const idsToDelete: Number[] = this.selectedItems.map(({ id }) => id);
-      axios
-      .delete(
-        process.env.VUE_APP_ApiLogging +
-          "Logging",{data :  idsToDelete}
-      )
-      .then(response => {
-        this.selectedItems.forEach(element => {
-           const index = this.loggings.indexOf(element, 0);
-            if (index > -1) {
-              this.loggings.splice(index, 1);
-            }
+  private Supprimer() {
+    const idsToDelete: Number[] = this.selectedItems.map(({ id }) => id);
+    axios
+      .delete(process.env.VUE_APP_ApiLogging + "Logging", { data: idsToDelete })
+      .then((response) => {
+        this.selectedItems.forEach((element) => {
+          const index = this.loggings.indexOf(element, 0);
+          if (index > -1) {
+            this.loggings.splice(index, 1);
+          }
         });
       })
-      .catch(e => {
+      .catch((e) => {
         this.errorMessage = e.message;
       })
       .finally(() => {
         this.loading = false;
       });
-       
   }
 }
 </script>
-
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

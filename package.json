@@ -5,8 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "duss" : "vue-cli-service build --mode duss",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "staging": "vue-cli-service build --mode staging",
+    "dussmann_production": "vue-cli-service build --mode dussmannproduction"
   },
   "dependencies": {
     "@mdi/font": "^3.6.95",
