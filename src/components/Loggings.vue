@@ -8,16 +8,19 @@
         Loggings
         <v-spacer></v-spacer>
         <v-checkbox
-          class="mr-4"
+          class="mr-10"
           v-model="seeLogInfo"
           label="Afficher les logs informatifs"
+          hide-details
+          color="primary"
         >
         </v-checkbox>
         <v-text-field
           v-model="search"
+          @change="getDataFromApi"
           @keypress.enter="getDataFromApi"
-          append-icon="mdi-search"
-          label="Search"
+          append-icon="mdi-magnify"
+          label="Filtrer"
           single-line
           hide-details
         ></v-text-field>
@@ -46,7 +49,7 @@
             ><v-icon left>mdi-delete</v-icon> Supprimer</v-btn
           >
         </template>
-        <template v-slot:item.type="{ item }">
+        <template v-slot:[`item.type`]="{ item }">
           <v-icon color="orange" v-if="item.type === 0">mdi-alert</v-icon>
           <v-icon color="red" v-if="item.type === 3">mdi-alert</v-icon>
           <v-icon color="orange" v-if="item.type === 1"
@@ -54,7 +57,7 @@
           >
           <v-icon color="blue" v-if="item.type === 2">mdi-comment-alert</v-icon>
         </template>
-        <template v-slot:item.date="{ item }">{{
+        <template v-slot:[`item.date`]="{ item }">{{
           item.date.toLocaleString()
         }}</template>
       </v-data-table>
@@ -138,7 +141,7 @@ export default class Loggings extends Vue {
     const { sortBy, sortDesc, page, itemsPerPage } = this.options;
     let baseQuery = this.seeLogInfo
       ? "Logging?Term="
-      : "Logging/GetErrors?Term";
+      : "Logging/GetErrors?Term=";
     axios
       .get<PagedCollection<Logging>>(
         process.env.VUE_APP_ApiLogging +

@@ -7,7 +7,7 @@
       </v-toolbar-title>
     </v-app-bar>
 
-    <v-content class="ma-5">
+    <v-content class="ma-2">
       <Loggings />
     </v-content>
   </v-app>
@@ -21,11 +21,11 @@ export default Vue.extend({
   name: "App",
 
   components: {
-    Loggings
+    Loggings,
   },
 
   data: () => ({
     //
-  })
+  }),
 });
 </script>
